@@ -1,0 +1,110 @@
+The Love Handle Index
+========================================================
+<br>
+Author: Adrien Seybert
+<br>
+Date: March 21, 2015
+
+
+Introducing ... The Love Handle Index
+========================================================
+The Love Handle Index calculates your Body Mass Index and determines whether it's too high, too low or just right. It's good for the health conscious interested in monitoring health and weight loss. 
+
+How To Use Love Handle Index
+========================================================
+
+- Just input your height in inches and your weight in pounds by moving the respective sliders.
+
+- Hit the Submit button and voila, you have your Love Handle Index 
+
+- The LHI calculates BMI from there through the equation -- BMI=703*(weight/(height^2))
+
+- The application tells you where you stand (Too High, Too Low, Just Right) and advises you on next steps to improve your LHI.
+
+LHI In Action
+========================================================
+
+![Love Handle Index](www/LHIAction.png)
+
+ui.R
+========================================================
+        library(shiny)
+        shinyUI(fluidPage(
+        titlePanel(h3("Love Handle Index", style='color:#357CB7')),
+    
+        fluidRow(
+        column(6, wellPanel(
+        p(),
+        img(src="lovehandles.jpg", height="50%", width="100%"),
+        p(),
+        sliderInput("weight", "Input Your Weight In Pounds", min=50, max=500, value=50),
+        sliderInput("height", "Input Your Height In Inches", min=30, max=90, value=30),
+        h4(actionButton('goButton',"Submit", style='color:#357CB7')),
+        p(),
+        h5(textOutput('BMI'), style='color:#357CB7', align='center')
+        )))
+        
+        ))
+
+server.R
+========================================================
+        library(shiny)
+        ## Create Love Handle Index
+        bmi <- function(weight, height){
+                fat<-paste("Your Love Handle Index is:",round((703*(weight/(height^2))),digits=1))
+                return(fat)
+        }
+        
+        ## Create Interpretation of Love Handle Index
+        rank<- function(weight, height) {
+                bmi<-703*(weight/height^2)
+                
+                if (bmi<=18.4){
+                        outcome<-"It is too low."
+                        return(outcome)
+                }
+                else if (bmi>=25){
+                        outcome<-"It is too high."
+                        return(outcome)
+                }
+                else{
+                        outcome<-"It is just about right."
+                        return(outcome)
+                        
+                }   
+        }
+        ## Create Health Suggestion Based On Love Handle Index
+        
+        advice<- function(weight, height) {
+        bmi<-round((703*(weight/height^2)),1)
+         
+        if (bmi<=18.4){
+                        desc<-"Eat a cheeseburger, will ya?"
+                        return(desc)
+                }
+                else if (bmi>=25){
+                        desc<-"Get thee to a gym."
+                        return(desc)
+                }
+                else{
+                        desc<-"Congrats, you're healthy."
+                        return(desc)
+                }}  
+            
+        shinyServer(
+                function(input, output) {
+
+                output$weight <- renderPrint({input$weight})
+                output$height <- renderPrint({input$height})
+                output$BMI <- renderText({
+                        if(input$goButton==0)
+                        return()
+                        else
+                        isolate(paste(bmi(input$weight, input$height),rank(input$weight, input$height),advice(input$weight, input$height), sep="\n"))
+                                
+})     
+     
+})    
+
+Awareness is Half The Battle: Say Goodbye to Your Love Handles. 
+========================================================
